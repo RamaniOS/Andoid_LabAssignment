@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Andoid_LabAssignment</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Ramanpreet Singh</string>
+    <string name="nav_header_desc">Navigation header</string>
+
+    <string name="menu_dashboard">Dashboard</string>
+    <string name="menu_search">Search Nearby</string>
+    <string name="menu_distance">Find Distance</string>
+
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyCGNZIaTG3Lj3gj5I6OrIvf9NZMQbz2oeU</string>
+
+</resources>
