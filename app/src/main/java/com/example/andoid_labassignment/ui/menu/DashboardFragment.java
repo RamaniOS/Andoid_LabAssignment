@@ -9,6 +9,9 @@ import android.view.ViewGroup;
 import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,6 +20,7 @@ import com.example.andoid_labassignment.Adapter.PlaceAdapter;
 import com.example.andoid_labassignment.Database.PlaceServiceImpl;
 import com.example.andoid_labassignment.Models.Place;
 import com.example.andoid_labassignment.R;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +41,7 @@ public class DashboardFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        initViews(view);
         initRecyclerView(view);
         placeService = new PlaceServiceImpl(getContext());
         getPlacesFromDB();
@@ -57,6 +62,29 @@ public class DashboardFragment extends Fragment {
         listView.setAdapter(placeAdapter);
     }
 
+    private void initViews(View view) {
+        FloatingActionButton floatingActionButton = view.findViewById(R.id.btn_add);
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MapFragment mapFragment = new MapFragment();
+                replaceFragment(mapFragment, view);
+            }
+        });
+    }
+
+    private void replaceFragment (Fragment fragment, View v){
+        String backStateName = fragment.getClass().getName();
+        FragmentManager manager = ((FragmentActivity) v.getContext()).getSupportFragmentManager();
+        boolean fragmentPopped = manager.popBackStackImmediate (backStateName, 0);
+        if (!fragmentPopped) { //fragment not in back stack, create it.
+            FragmentTransaction ft = manager.beginTransaction();
+            ft.replace(R.id.container, fragment);
+            ft.addToBackStack(backStateName);
+            ft.commit();
+        }
+    }
+
     public void getPlacesFromDB() {
        new AsyncTask<Void, Void, Void>() {
             @Override
@@ -72,5 +100,4 @@ public class DashboardFragment extends Fragment {
             }
         }.execute();
     }
-
 }

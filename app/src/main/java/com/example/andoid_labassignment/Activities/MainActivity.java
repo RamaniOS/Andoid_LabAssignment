@@ -24,6 +24,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.view.Menu;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -100,5 +102,17 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+    }
+
+    public void hideKeyboard() {
+        try {
+            InputMethodManager manager = (InputMethodManager) this.getSystemService(getApplicationContext().INPUT_METHOD_SERVICE);
+            View currentFocusedView = this.getCurrentFocus();
+            if (currentFocusedView != null) {
+                manager.hideSoftInputFromWindow(currentFocusedView.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }

@@ -7,6 +7,8 @@ import android.location.Geocoder;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -28,6 +30,10 @@ public class FetchAddressStore {
                 if (address.getLocality() != null) {
                     addressName.append(", " + address.getLocality());
                 }
+            } else {
+                Date date = new Date();
+                SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
+                addressName.append(formatter.format(date));
             }
         } catch (IOException e) {
             e.printStackTrace();

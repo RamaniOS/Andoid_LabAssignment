@@ -9,22 +9,32 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import com.example.andoid_labassignment.Abstract.BaseMapFragment;
+import com.example.andoid_labassignment.Activities.MainActivity;
+import com.example.andoid_labassignment.BackgroundFetch.GetLocation;
 import com.example.andoid_labassignment.BackgroundFetch.GetPlaces;
 import com.example.andoid_labassignment.Database.PlaceServiceImpl;
 import com.example.andoid_labassignment.Helper.Helper;
 import com.example.andoid_labassignment.Models.Place;
 import com.example.andoid_labassignment.R;
+import com.example.andoid_labassignment.Store.FetchAddressStore;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 
 public class MapFragment extends BaseMapFragment implements GoogleMap.OnMarkerClickListener {
 
     private PlaceServiceImpl placeService;
+    private EditText et_search;
+    private ImageView img_find;
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -33,8 +43,26 @@ public class MapFragment extends BaseMapFragment implements GoogleMap.OnMarkerCl
             requestPermission();
         } else {
             mMap.setMyLocationEnabled(true);
+            mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+                @Override
+                public void onMapLongClick(LatLng latLng) {
+                    dest_lat = latLng.latitude;
+                    dest_lng =latLng.longitude;
+                    setMarker(latLng);
+                }
+            });
         }
         mMap.setOnMarkerClickListener(this);
+    }
+
+    private void setMarker(LatLng location) {
+        mMap.clear();
+        String title = FetchAddressStore.execute(getContext(), location);
+        MarkerOptions markerOptions = new MarkerOptions().position(location)
+                .title(title)
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                .draggable(true);
+        mMap.addMarker(markerOptions);
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -46,7 +74,33 @@ public class MapFragment extends BaseMapFragment implements GoogleMap.OnMarkerCl
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        initViews(view);
         placeService = new PlaceServiceImpl(getContext());
+    }
+
+    private void initViews(View view) {
+        et_search = view.findViewById(R.id.et_search);
+        img_find = view.findViewById(R.id.find);
+        img_find.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getLocation();
+            }
+        });
+    }
+
+    private void getLocation() {
+        String searchText = et_search.getText().toString().trim();
+        if (searchText.length() > 0) {
+            MainActivity activity = (MainActivity) getActivity();
+            activity.hideKeyboard();
+            et_search.setText("");
+            Object[] data = new Object[2];
+            data[0] = mMap;
+            data[1] = searchText;
+            GetLocation location = new GetLocation();
+            location.execute(data);
+        }
     }
 
     @Override
@@ -82,24 +136,38 @@ public class MapFragment extends BaseMapFragment implements GoogleMap.OnMarkerCl
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        showAlert(getContext(), marker);
+        showAlert(getContext(), marker, getName(marker));
         return false;
     }
 
-    private void addToVisit(Marker marker) {
+    private String getName(Marker marker) {
         String[] title = marker.getTitle().split(" : ");
-        String name = title[0];
-        String vicinity = title[1];
+        String name, vicinity;
+        if (title.length==2) {
+            name = title[0];
+            vicinity = title[1];
+        } else {
+            name = "N/A";
+            vicinity = marker.getTitle();
+        }
+        return  name + " : " + vicinity;
+    }
+
+    private void addToVisit(Marker marker) {
+        String[] title = getName(marker).split(" : ");
+        String name, vicinity;
+        name = title[0];
+        vicinity = title[1];
         String lat = String.valueOf(marker.getPosition().latitude);
         String lng = String.valueOf(marker.getPosition().longitude);
         Place place = new Place(name, vicinity, lat, lng);
         placeService.insertAll(place);
-        Helper.showAlert(getContext(), "Alert!", "Saved successfully.");
+        Helper.showAlert(getContext(), getName(marker), "Saved successfully.");
     }
 
-    private void showAlert(Context context, final Marker marker) {
+    private void showAlert(Context context, final Marker marker, String title) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
-        alertDialogBuilder.setTitle("Alert");
+        alertDialogBuilder.setTitle(title);
         alertDialogBuilder.setMessage("Do you want to visit this place?");
         alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override

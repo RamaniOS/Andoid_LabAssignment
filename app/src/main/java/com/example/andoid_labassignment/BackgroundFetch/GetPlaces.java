@@ -37,7 +37,6 @@ public class GetPlaces extends AsyncTask<Object, List<Place>, List<Place>> {
     protected void onPostExecute(List<Place> places) {
         super.onPostExecute(places);
         mMap.clear();
-        //setCurrentLocationMarker();
         for (Place place: places) {
             MarkerOptions markerOptions = new MarkerOptions()
                     .position(place.getLocation())
@@ -46,14 +45,6 @@ public class GetPlaces extends AsyncTask<Object, List<Place>, List<Place>> {
 
             mMap.addMarker(markerOptions);
         }
-    }
-
-    private void setCurrentLocationMarker() {
-        MarkerOptions markerOptions = new MarkerOptions().position(location)
-                .title("Your Location")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
-                .snippet("You are here");
-        mMap.addMarker(markerOptions);
     }
 }
 

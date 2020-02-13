@@ -79,4 +79,37 @@ public class GoogleAPIStore {
         }
         return null;
     }
+
+    public static Place FetchLocation(String name) throws JSONException, IOException {
+        StringBuilder url = new StringBuilder(BASE_URL+"place/findplacefromtext/json?");
+        url.append("input="+name);
+        url.append("&inputtype=textquery&fields=formatted_address,name,geometry");
+        url.append("&key="+API_KEY);
+
+        Place place = new Place();
+        String jsonData = BaseAPIStore.request(url.toString());
+
+        if (jsonData != null) {
+            JSONObject json = new JSONObject(jsonData);
+            JSONObject result = json.getJSONArray("candidates").getJSONObject(0);
+            try {
+                String address = result.getString("formatted_address");
+                String title = result.getString("name");
+                JSONObject location = result.getJSONObject("geometry").getJSONObject("location");
+                String lat = location.getString("lat");
+                String lng = location.getString("lng");
+                // create place object
+                place.setVicinity(address);
+                place.setName(title);
+                place.setLatitude(lat);
+                place.setLongitude(lng);
+                place.setVisited(false);
+
+                return place;
+            } catch (JSONException e) {
+                e.getStackTrace();
+            }
+        }
+        return null;
+    }
 }
