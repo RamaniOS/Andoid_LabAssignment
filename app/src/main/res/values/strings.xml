@@ -9,6 +9,6 @@
     <string name="menu_search">Search</string>
     <string name="menu_distance">Find Distance</string>
 
-    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyCGNZIaTG3Lj3gj5I6OrIvf9NZMQbz2oeU</string>
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">API_KEY</string>
 
 </resources>
